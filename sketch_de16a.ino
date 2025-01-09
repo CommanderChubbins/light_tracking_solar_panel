@@ -34,7 +34,7 @@ void servo_move(bool start) {
 
 void setup() {
   Serial.begin(9600);
-  Serial1.begin(9600);
+  // Serial1.begin(9600);
   servo0.attach(servopin);
 }
 
