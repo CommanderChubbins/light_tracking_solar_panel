@@ -15,11 +15,11 @@ void loop() {
   // Reads light value from sensor on pin A0 every 1000ms (1s)
   // Prints raw input value and mapped (0 to 5) value  
   int sensor0 = analogRead(A0); 
-  //not used
+  // not used
   int light_level0 = map(sensor0, SENSOR_MIN, SENSOR_MAX, 0, 5);
 
   int sensor1 = analogRead(A1); 
-  //not used
+  // not used
   int light_level1 = map(sensor1, SENSOR_MIN, SENSOR_MAX, 0, 5);
   
   
