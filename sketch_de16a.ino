@@ -4,25 +4,29 @@
 #define SENSOR_MIN 0
 #define SENSOR_MAX 1023
 
-int sensor0 = analogRead(A0); 
-int sensor1 = analogRead(A1);   
+int sensor0 = analogRead(A0);
+int sensor1 = analogRead(A1);  
 
-int pwradr = 0;
+// int pwradr = 0;
+
+int centerswitch = 5;
 
 Servo servo0;
 int servopin = 9;
 
-int vpin = A2;
 int resistor = 5;
+
+int time;
 
 void power_calc(void)
 {
-  int volts = 5; //analogRead(vpin);
+  // total energy generated since powered on 
+  int volts = analogRead(A2);
   float power = (volts * volts) / resistor;
-  int time = 3;
+  time = millis();
 
-  float wh = power * time;
-  EEPROM.put(pwradr, wh); 
+  float energy = power * time;
+  // EEPROM.put(pwradr, energy); 
 }
 
 int light_direction(void)
@@ -30,12 +34,12 @@ int light_direction(void)
   if (sensor0 > (sensor1 + 5))
   {    
     // move towards sensor0
-    return sensor0;
+    return -1;
   }
   else if (sensor0 < (sensor1 - 5))
   {
     // move towards sensor1
-    return sensor1;
+    return 1;
   }
   else
   {
@@ -45,6 +49,7 @@ int light_direction(void)
 }
 
 void servo_move(void) {
+  #if 0
   int current = servo0.read();
   int dr = 1;
   while (int direction = light_direction())
@@ -56,12 +61,21 @@ void servo_move(void) {
   }
   //servo0.write(current);
   //servo0.write(0);
-  
+  #endif
+  int current = servo0.read();
+  // move towards sensor while sensors are different 
+  while (int direction = light_direction())
+  {
+    Serial.println(direction);
+    Serial.println(servo0.read());
+    servo0.write(direction * 4);
+  }
 }
 
 void setup() {
   Serial.begin(9600);
   servo0.attach(servopin);
+  pinMode(centerswitch, INPUT);
 }
 
 void loop() {
@@ -73,10 +87,19 @@ void loop() {
   //Serial.println(sensor1);
   
   // servo_move();
-  float saved;
+  /*float saved;
   EEPROM.get(pwradr, saved);
   Serial.println(saved);
+  */
   //power_calc();
-
-  delay(20);
+  // center motor and cancel movement if switch is on 
+  if (digitalRead(centerswitch))
+  {
+    servo0.write(90);
+  }
+  else
+  {
+    servo_move();
+  }
+  delay(200);
 }
