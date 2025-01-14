@@ -68,7 +68,12 @@ void servo_move(void) {
   {
     Serial.println(direction);
     Serial.println(servo0.read());
-    servo0.write(direction * 4);
+    int dr = direction * 4;
+    
+    if (current + dr > 10 && current + dr < 170)
+    {
+      servo0.write(dr);
+    }
   }
 }
 
