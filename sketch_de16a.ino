@@ -31,50 +31,47 @@ void power_calc(void)
 
 int light_direction(void)
 {
-  if (sensor0 > (sensor1 + 5))
+  // average sensors ~5 times 
+  sensor0 = analogRead(A0);
+  sensor1 = analogRead(A1);
+  
+  // change angle based on difference in sensor readings  
+  if (sensor0 > (sensor1 + 10))
   {    
     // move towards sensor0
+    //Serial.println(sensor0);
+    //Serial.println(sensor1 + 10);
     return -1;
   }
-  else if (sensor0 < (sensor1 - 5))
+  else if (sensor0 < (sensor1 - 10))
   {
     // move towards sensor1
+    //Serial.println(sensor1);
     return 1;
   }
   else
   {
     // don't move
+    //Serial.print(sensor0);
+    //Serial.println(sensor1);
     return 0;
   }
 }
 
-void servo_move(void) {
-  #if 0
-  int current = servo0.read();
-  int dr = 1;
-  while (int direction = light_direction())
-  {
-    
-    servo0.write(current + dr);
-    dr++;
-    current = servo0.read();
-  }
-  //servo0.write(current);
-  //servo0.write(0);
-  #endif
-  int current = servo0.read();
+void servo_move(int direction) {
   // move towards sensor while sensors are different 
-  while (int direction = light_direction())
+  int current = servo0.read();
+  
+  //Serial.println(servo0.read());
+  int dr = current + (direction * 4);
+
+  if (dr > 10 && dr < 170)
   {
-    Serial.println(direction);
-    Serial.println(servo0.read());
-    int dr = direction * 4;
-    
-    if (current + dr > 10 && current + dr < 170)
-    {
-      servo0.write(dr);
-    }
+    servo0.write(dr);
   }
+  
+  //while (int direction = light_direction())
+  
 }
 
 void setup() {
@@ -98,13 +95,23 @@ void loop() {
   */
   //power_calc();
   // center motor and cancel movement if switch is on 
+  int count = Serial.available();
+  if (count)
+  {
+    Serial.print("recieved: ");
+    Serial.println(Serial.readString());
+  }
+
+  
   if (digitalRead(centerswitch))
   {
     servo0.write(90);
   }
-  else
+  // figure out if light direction is "found" or stable 
+  // then, if a sudden change occurs, pause for n time before checking and moving   again
+  else if (int direction = light_direction())
   {
-    servo_move();
+    servo_move(direction);
   }
-  delay(200);
+  delay(500);
 }
