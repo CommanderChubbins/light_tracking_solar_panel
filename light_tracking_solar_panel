@@ -1,14 +1,16 @@
 #include <Servo.h>
 
+#define LOOP_FREQ 1000
+#define RANGE_COUNT 5
 #define SENSOR_MIN 0
 #define SENSOR_MAX 1023
-#define RANGE_COUNT 4
 
 // max, angle 
 int difftoangle[RANGE_COUNT][2] = {
   {10, 0},
   {50, 1},
   {80, 2},
+  {120, 3},
   {1024, 5}
 };
 
@@ -37,7 +39,7 @@ float power_calc(void)
   long accum = 0;
   for (int i = 0; i < 100; ++i)
   {
-    accum += analogRead(A2);
+    accum += analogRead(A3);
     delay(1);
   }
   accum /= 100;
@@ -173,19 +175,25 @@ void setup(void)
 /* ----------------------------------------------------------------------------
  * The main processing loop
  * 
+ * Repeats every second
+ *
  * params: none 
  * 
  * return: none
  */
 void loop(void)
 {
-  // Serial read (unused) 
+  long t_start = millis();
+  
+  // Serial read (unused)
+  /*
   int count = Serial.available();
   if (count)
   {
     Serial.print("recieved: ");
     Serial.println(Serial.readString());
   }
+  */
 
   float power_mW = power_calc();
   float energy_mJ = energy_calc(power_mW);
@@ -205,5 +213,7 @@ void loop(void)
   {
     servo_move(angle);
   }
-  delay(500);
+
+  long t_next = LOOP_FREQ - (millis() - t_start);
+  delay((t_next > 0 ? t_next : 0));
 }
