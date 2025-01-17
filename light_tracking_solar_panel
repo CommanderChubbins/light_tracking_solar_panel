@@ -157,7 +157,6 @@ void servo_move(int angle)
   return;
 }
 
-
 /* ----------------------------------------------------------------------------
  * Inialize serial port, servo, and i/o pins
  * 
@@ -185,24 +184,17 @@ void loop(void)
 {
   long t_start = millis();
   
-  // Serial read (unused)
-  /*
-  int count = Serial.available();
-  if (count)
-  {
-    Serial.print("recieved: ");
-    Serial.println(Serial.readString());
-  }
-  */
-
   float power_mW = power_calc();
   float energy_mJ = energy_calc(power_mW);
-  Serial.print("Power (mW): ");
+
+  Serial.print("Time (s): ");
+  Serial.print(millis() / 1000);
+  Serial.print(", Power (mW): ");
   Serial.print(power_mW);
   Serial.print(", Energy (mJ): ");
   Serial.print(energy_mJ);
-  Serial.print(", Time since start (s): ");
-  Serial.println(millis() / 1000);
+  Serial.print(", Angle: ");
+  Serial.println(servo0.read());
 
   // center motor and cancel movement if switch is on 
   if (digitalRead(centeringpin))
